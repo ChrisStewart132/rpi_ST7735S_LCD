@@ -183,13 +183,16 @@ void init(int fd, struct gpiod_line* dc, struct gpiod_line* rst){
 	tx_buffer[0] = 0x05;// 16-bit / pixel
 	_spi_transfer(fd, tx_buffer, rx_buffer, 1);
 
+	int WIDTH = 128;
+	int HEIGHT = 160;
+
 	// set col range 
 	command(fd, dc, CASET);
 	_gpio_high(dc);
 	tx_buffer[0] = 0;		// start short (2 bytes)
 	tx_buffer[1] = 0;
 	tx_buffer[2] = 0;		// end short
-	tx_buffer[3] = 100;
+	tx_buffer[3] = WIDTH;
 	_spi_transfer(fd, tx_buffer, rx_buffer, 4);
 
 	// set row range 
@@ -198,20 +201,28 @@ void init(int fd, struct gpiod_line* dc, struct gpiod_line* rst){
 	tx_buffer[0] = 0;		// start short (2 bytes)
 	tx_buffer[1] = 0;
 	tx_buffer[2] = 0;		// end short
-	tx_buffer[3] = 100;
+	tx_buffer[3] = HEIGHT;
 	_spi_transfer(fd, tx_buffer, rx_buffer, 4);
 
 	// write to ram
 	command(fd, dc, RAMWR);
 	_gpio_high(dc);
-	for(int i = 0; i < 100; i+=2){
-		for(int j = 0; j < 100; j++){
-			uint8_t b1 = 0xf8;// b 11111000
-			uint8_t b2 = 0;
-			uint8_t rx;
+	for(int i = 0; i < WIDTH; i++){
+		for(int j = 0; j < HEIGHT; j++){
+			uint8_t b1 = 0xf8;// b 1111 1000
+			uint8_t b2 = 0x1f;// b 0001 1111
+			uint8_t tx[2] = {b1, b2};// purple
+			if(i < 128/3){// red
+				tx[1] = 0;
+			} else if(i > 128 - 128/3){// blue
+				tx[0] = 0;
+			}
+		
+			uint8_t rx[2] = {0};
 			// rgb 565
-			_spi_transfer(fd, &b1, &rx, 1);
-			_spi_transfer(fd, &b2, &rx, 1);
+			//_spi_transfer(fd, &b1, &rx, 1);
+			//_spi_transfer(fd, &b2, &rx, 1);
+			_spi_transfer(fd, tx, rx, 2);
 		}
 	}
 	
