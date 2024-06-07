@@ -30,6 +30,7 @@
 */
 #define SPI_DEVICE "/dev/spidev1.0"
 #define SPI_HZ 16000000
+#define MAX_SPI_TRANSFER_SIZE 4096 // Define a maximum transfer size that your SPI hardware supports
 /**
  * SCE
  * MOSI
@@ -226,20 +227,38 @@ void display_invert(int fd, struct gpiod_line* dc){
 
 
 void display_buffer(int fd, struct gpiod_line* dc, uint16_t buffer[160][128]){
+	// Frame buffer to hold the entire frame in RGB565 format
+    uint8_t frame_buffer[WIDTH * HEIGHT * 2];
+    uint8_t rx_buffer[WIDTH * HEIGHT * 2] = {0}; // Dummy receive buffer
+
 	// write to ram
 	_command(fd, dc, RAMWR);
 	_gpio_high(dc);
+	int index = 0;
 	for(int i = 0; i < HEIGHT; i++){
 		for(int j = 0; j < WIDTH; j++){
+			/*
 			uint8_t b1 = (buffer[i][j] >> 8) & 0xFF;  	// High byte of 16-bit color
             uint8_t b2 = buffer[i][j] & 0xFF;        	// Low byte of 16-bit color
 			uint8_t tx[2] = {b1, b2};
 			uint8_t rx[2] = {0};
-			// rgb 565
 			_spi_transfer(fd, tx, rx, 2);
+			*/
+			frame_buffer[index++] = (uint8_t)(buffer[i][j] >> 8);    // High byte of 16-bit color
+            frame_buffer[index++] = (uint8_t)(buffer[i][j] & 0xFF); // Low byte of 16-bit color
 		}
 	}
-	
+	// Transfer the frame buffer in chunks
+    int total_bytes = sizeof(frame_buffer);
+    int offset = 0;
+    while (offset < total_bytes) {
+        int chunk_size = total_bytes - offset;
+        if (chunk_size > MAX_SPI_TRANSFER_SIZE) {
+            chunk_size = MAX_SPI_TRANSFER_SIZE;
+        }
+        _spi_transfer(fd, frame_buffer + offset, rx_buffer, chunk_size);
+        offset += chunk_size;
+    }
 }
 
 int main() {
