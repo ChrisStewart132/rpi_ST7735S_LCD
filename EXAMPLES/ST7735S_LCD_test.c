@@ -174,7 +174,7 @@ void init(int fd, struct gpiod_line* dc, struct gpiod_line* rst){
 	// Gamma set
 	command(fd, dc, GAMSET);
 	_gpio_high(dc);
-	tx_buffer[0] = 0x2;
+	tx_buffer[0] = 0x3;
 	_spi_transfer(fd, tx_buffer, rx_buffer, 1);
 
 	// Interface Pixel Format
@@ -207,21 +207,26 @@ void init(int fd, struct gpiod_line* dc, struct gpiod_line* rst){
 	// write to ram
 	command(fd, dc, RAMWR);
 	_gpio_high(dc);
-	for(int i = 0; i < WIDTH; i++){
-		for(int j = 0; j < HEIGHT; j++){
+	for(int i = 0; i < HEIGHT; i++){// y
+		for(int j = 0; j < WIDTH; j++){// x
 			uint8_t b1 = 0xf8;// b 1111 1000
 			uint8_t b2 = 0x1f;// b 0001 1111
-			uint8_t tx[2] = {b1, b2};// purple
-			if(i < 128/3){// red
+			uint8_t tx[2] = {b1, b2};// middle 1/3 purple
+			if(i < HEIGHT/3){// top 1/3 red
 				tx[1] = 0;
-			} else if(i > 128 - 128/3){// blue
+			} else if(i > HEIGHT - HEIGHT/3){// lower 1/3 blue
 				tx[0] = 0;
+			}
+			
+			if(j < WIDTH/3){// left 1/3 white
+				tx[0] = 255;
+				tx[1] = 255;
+			}else if(j > WIDTH - WIDTH/3){// right 1/3 black
+				tx[0] = 0;
+				tx[1] = 0;
 			}
 		
 			uint8_t rx[2] = {0};
-			// rgb 565
-			//_spi_transfer(fd, &b1, &rx, 1);
-			//_spi_transfer(fd, &b2, &rx, 1);
 			_spi_transfer(fd, tx, rx, 2);
 		}
 	}
