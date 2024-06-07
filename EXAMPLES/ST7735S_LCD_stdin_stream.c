@@ -4,7 +4,7 @@
  * Description: program to display a 128x160 16bit rgb (565) stream from stdin on a ST7735S 1.8" 128x160 LCD
  * 
  * gcc -o ST7735S_LCD_stdin_stream ST7735S_LCD_stdin_stream.c -lgpiod
- * rpicam-vid | ./convert_and_stdout_stream_to_16bit_rgb_128_160 | ./ST7735S_LCD_stdin_stream
+ * rpicam-vid -t 0 -n --framerate 30 --width 128 --height 160 --codec yuv420 -o - | ./YUV420_to_RGB565_grayscale | ./ST7735S_LCD_stdin_stream
  */
 
 #include <gpiod.h>
@@ -17,6 +17,9 @@
 #include <sys/ioctl.h>
 #include <linux/spi/spidev.h>
 
+#define WIDTH 128
+#define HEIGHT 160
+
 #define GPIO_CHIP_NAME "gpiochip0"
 #define GPIO_OFFSET_DC 26 	// DATA(high)/COMMAND(low) aka WRX
 #define GPIO_OFFSET_RST 16 	// RESET active low
@@ -26,7 +29,7 @@
  * this makes GPIO 18,17 chip selects/enables (CE0, CE1) for SPI1
 */
 #define SPI_DEVICE "/dev/spidev1.0"
-#define SPI_HZ 4000000
+#define SPI_HZ 16000000
 /**
  * SCE
  * MOSI
@@ -134,6 +137,12 @@ void command(int fd, struct gpiod_line* dc, uint8_t cmd){
     usleep(120000); // 120ms delay
 }
 
+void _command(int fd, struct gpiod_line* dc, uint8_t cmd){
+	uint8_t rx;
+	_gpio_low(dc);
+    _spi_transfer(fd, &cmd, &rx, 1);
+}
+
 void init(int fd, struct gpiod_line* dc, struct gpiod_line* rst){
 	/**
 	 * 9.14 Power Level Definition
@@ -182,25 +191,7 @@ void init(int fd, struct gpiod_line* dc, struct gpiod_line* rst){
 	_gpio_high(dc);
 	tx_buffer[0] = 0x05;// 16-bit / pixel
 	_spi_transfer(fd, tx_buffer, rx_buffer, 1);
-}
 
-void display_invert(int fd, struct gpiod_line* dc){
-	static bool inverted = false;
-	uint8_t cmd;
-	if(inverted){
-		cmd = INVOFF;
-	}else{
-		cmd = INVON;
-	}
-	command(fd, dc, cmd);
-	inverted = ! inverted;
-}
-
-void display_buffer(int fd, struct gpiod_line* dc, uint16_t buffer[128][160]){
-	uint8_t tx_buffer[33] = {NOP};
-	uint8_t rx_buffer[33] = {0};
-	int WIDTH = 128;
-	int HEIGHT = 160;
 	// set col range 
 	command(fd, dc, CASET);
 	_gpio_high(dc);
@@ -218,12 +209,28 @@ void display_buffer(int fd, struct gpiod_line* dc, uint16_t buffer[128][160]){
 	tx_buffer[2] = 0;		// end short
 	tx_buffer[3] = HEIGHT;
 	_spi_transfer(fd, tx_buffer, rx_buffer, 4);
+}
 
+void display_invert(int fd, struct gpiod_line* dc){
+	static bool inverted = false;
+	uint8_t cmd;
+	if(inverted){
+		cmd = INVOFF;
+	}else{
+		cmd = INVON;
+	}
+	command(fd, dc, cmd);
+	inverted = ! inverted;
+}
+
+
+
+void display_buffer(int fd, struct gpiod_line* dc, uint16_t buffer[160][128]){
 	// write to ram
-	command(fd, dc, RAMWR);
+	_command(fd, dc, RAMWR);
 	_gpio_high(dc);
-	for(int i = 0; i < WIDTH; i++){
-		for(int j = 0; j < HEIGHT; j++){
+	for(int i = 0; i < HEIGHT; i++){
+		for(int j = 0; j < WIDTH; j++){
 			uint8_t b1 = (buffer[i][j] >> 8) & 0xFF;  	// High byte of 16-bit color
             uint8_t b2 = buffer[i][j] & 0xFF;        	// Low byte of 16-bit color
 			uint8_t tx[2] = {b1, b2};
@@ -248,10 +255,10 @@ int main() {
 	init(fd, dc, rst);
 	//display_invert(fd, dc);
 
-	uint16_t buffer[128][160] = {{0}};
+	uint16_t buffer[160][128] = {{0}};
 	while(1){
-		for(int i = 0; i < 128; i++){
-			read(0, buffer[i], sizeof(uint16_t)*160);
+		for(int i = 0; i < 160; i++){
+			read(0, buffer[i], sizeof(uint16_t)*128);
 		}
 		display_buffer(fd, dc, buffer);
 		usleep(1000);

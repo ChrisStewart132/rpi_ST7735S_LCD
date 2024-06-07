@@ -4,28 +4,37 @@
  * Description: program to convert an incoming stream of 128x160 yuv420 images to grayscale RGB565 (16bit per pixel) format
  * 
  * gcc -o YUV420_to_RGB565_grayscale YUV420_to_RGB565_grayscale.c -lgpiod
- * rpicam-vid -n --framerate 30 --width 160 --height 128 -t 10000 --codec yuv420 -o - | ./YUV420_to_RGB565_grayscale | ./ST7735S_LCD_stdin_stream
+ * rpicam-vid -t 0 -n --framerate 30 --width 128 --height 160 --codec yuv420 -o - | ./YUV420_to_RGB565_grayscale | ./ST7735S_LCD_stdin_stream
  */
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
 
+#define WIDTH 128
+#define HEIGHT 160
+
 int main(int argc, char** argv) {
-    uint8_t y[128][160];
-    uint16_t rgb565[128][160];
+    uint8_t y[HEIGHT][WIDTH];
+    uint8_t u[HEIGHT/2][WIDTH/2];
+    uint8_t v[HEIGHT/2][WIDTH/2];
+    uint16_t rgb565[HEIGHT][WIDTH];
 
     while(1){
         // read from stdin a YUV420 frame
-        for(int i = 0; i < 128; i++){
-            read(0, y[i], sizeof(uint8_t)*160);
+        for(int i = 0; i < HEIGHT; i++){
+            read(0, y[i], sizeof(uint8_t)*WIDTH);
+        }
+        for(int i = 0; i < HEIGHT/2; i++){
+            read(0, u[i], sizeof(uint8_t)*WIDTH/2);
+        }
+        for(int i = 0; i < HEIGHT/2; i++){
+            read(0, v[i], sizeof(uint8_t)*WIDTH/2);
         }
 
         // iterate each 4x4 YUV420 block in the frame and add rgb565 pixels for stdout
-        for(int i = 0; i < 128; i++){
-            for(int j = 0; j < 160; j++){
+        for(int i = 0; i < HEIGHT; i++){
+            for(int j = 0; j < WIDTH; j++){
                 uint8_t gray = y[i][j];
                 uint8_t r = gray/8;//0-31
                 uint8_t g = gray/4;//0-63
@@ -36,10 +45,10 @@ int main(int argc, char** argv) {
         }
 
         // write rgb565 frame to stdout
-        for(int i = 0; i < 64; i++){
-            write(1, rgb565[i], sizeof(uint16_t)*160);
+        for(int i = 0; i < HEIGHT; i++){
+            write(1, rgb565[i], sizeof(uint16_t)*WIDTH);
         }
-        usleep(10000);
+        usleep(1000);
     }
 	return EXIT_SUCCESS;
 }
