@@ -1,11 +1,22 @@
 /**
  * Author: Christopher Stewart (Christopher.ray.stewart@gmail.com)
- * Date: 06062024
+ * Date: 11062024
  * Description: program to display a 128x160 16bit rgb (565) stream from stdin on a ST7735S 1.8" 128x160 LCD
  * 
  * gcc -o ST7735S_LCD_stdin_stream ST7735S_LCD_stdin_stream.c -lgpiod
+ * 
+ * grayscale
  * rpicam-vid -t 0 -n --framerate 30 --width 128 --height 160 --codec yuv420 -o - | ./YUV420_to_RGB565_grayscale | ./ST7735S_LCD_stdin_stream
+ * 
+ * rgb565
  * rpicam-vid -t 0 -n --framerate 30 --width 128 --height 160 --codec yuv420 -o - | ./YUV420_to_RGB565 | ./ST7735S_LCD_stdin_stream
+ * 
+ * 4bit grayscale
+ * rpicam-vid -t 20000 -n --framerate 24 --width 128 --height 160 --codec yuv420 -o - | ./YUV420_to_4bit_grayscale | ./grayscale_4bit_to_16bit_RGB565 | ./ST7735S_LCD_stdin_stream
+ * 
+ * 2bit grayscale
+ * rpicam-vid -t 20000 -n --framerate 24 --width 128 --height 160 --codec yuv420 -o - | ./YUV420_to_2bit_grayscale | ./grayscale_2bit_to_16bit_RGB565 | ./ST7735S_LCD_stdin_stream
+ * 
  */
 
 #include <gpiod.h>
@@ -58,12 +69,11 @@
 #define INVON 0x20
 #define INVOFF 0x21
 
-// rgb order?
-#define RGBSET 0x2d	
-// ??
+
+#define RGBSET 0x2d	// rgb order
 #define SCRLAR 0x33
-#define MADCTL 0x36
-#define VSCSAD 0x37
+#define MADCTL 0x36 // lcd orientation settings
+#define VSCSAD 0x37 
 
          
 void _spi_transfer(int fd, uint8_t* tx_buffer, uint8_t* rx_buffer, int size) {
@@ -228,23 +238,16 @@ void display_invert(int fd, struct gpiod_line* dc){
 
 
 void display_buffer(int fd, struct gpiod_line* dc, uint16_t buffer[160][128]){
-	// Frame buffer to hold the entire frame in RGB565 format
-    uint8_t frame_buffer[WIDTH * HEIGHT * 2];
-    uint8_t rx_buffer[WIDTH * HEIGHT * 2] = {0}; // Dummy receive buffer
-
+	uint8_t tx_buffer[4] = {NOP};
+	uint8_t frame_buffer[WIDTH * HEIGHT * 2];// Frame buffer to hold the entire frame in RGB565 format
+	uint8_t rx_buffer[WIDTH * HEIGHT * 2] = {0}; // Dummy receive buffer
+	
 	// write to ram
 	_command(fd, dc, RAMWR);
 	_gpio_high(dc);
 	int index = 0;
 	for(int i = 0; i < HEIGHT; i++){
 		for(int j = 0; j < WIDTH; j++){
-			/*
-			uint8_t b1 = (buffer[i][j] >> 8) & 0xFF;  	// High byte of 16-bit color
-            uint8_t b2 = buffer[i][j] & 0xFF;        	// Low byte of 16-bit color
-			uint8_t tx[2] = {b1, b2};
-			uint8_t rx[2] = {0};
-			_spi_transfer(fd, tx, rx, 2);
-			*/
 			frame_buffer[index++] = (uint8_t)(buffer[i][j] >> 8);    // High byte of 16-bit color
             frame_buffer[index++] = (uint8_t)(buffer[i][j] & 0xFF); // Low byte of 16-bit color
 		}
@@ -274,12 +277,13 @@ int main() {
 
 	init(fd, dc, rst);
 	//display_invert(fd, dc);
-
+	sleep(1);
 	uint16_t buffer[160][128] = {{0}};
 	while(1){
 		for(int i = 0; i < 160; i++){
 			read(0, buffer[i], sizeof(uint16_t)*128);
 		}
+		//read(0, buffer, sizeof(buffer));
 		display_buffer(fd, dc, buffer);
 		usleep(1000);
 	}
