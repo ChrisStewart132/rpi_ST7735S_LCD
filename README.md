@@ -1,6 +1,8 @@
 ## RPICAM STREAM DEMO
 https://github.com/ChrisStewart132/rpi_ST7735S_LCD/assets/30304173/15f0ddb7-d65c-49f5-a9d2-8b89218a76ce
 
+![2bit_gray](docs/ST7735S_LCD_2bit_gray_30fps.mp4)
+
 https://github.com/ChrisStewart132/rpi_ST7735S_LCD/assets/30304173/c0736b39-0bb9-4a1f-b404-5bf1be6a9e27
 
 http://www.lcdwiki.com/1.8inch_Arduino_SPI_Module_ST7735S_SKU:MAR1801
