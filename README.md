@@ -3,8 +3,6 @@ https://github.com/ChrisStewart132/rpi_ST7735S_LCD/assets/30304173/15f0ddb7-d65c
 
 https://github.com/ChrisStewart132/rpi_ST7735S_LCD/assets/30304173/c0736b39-0bb9-4a1f-b404-5bf1be6a9e27
 
-# rpi_ST7735S_LCD
-![pinout](docs/product.jpg)
 http://www.lcdwiki.com/1.8inch_Arduino_SPI_Module_ST7735S_SKU:MAR1801
 
 ## Table of Contents
