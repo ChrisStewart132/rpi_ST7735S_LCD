@@ -1,7 +1,18 @@
 ## RPICAM STREAM DEMO
-https://github.com/ChrisStewart132/rpi_ST7735S_LCD/assets/30304173/15f0ddb7-d65c-49f5-a9d2-8b89218a76ce
 
-https://github.com/ChrisStewart132/rpi_ST7735S_LCD/assets/30304173/c0736b39-0bb9-4a1f-b404-5bf1be6a9e27
+<div style="max-width: 500px; max-height: 300px;">
+  <video width="500" height="300" controls>
+    <source src="https://github.com/ChrisStewart132/rpi_ST7735S_LCD/assets/30304173/15f0ddb7-d65c-49f5-a9d2-8b89218a76ce" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+</div>
+
+<div style="max-width: 500px; max-height: 300px;">
+  <video width="500" height="300" controls>
+    <source src="https://github.com/ChrisStewart132/rpi_ST7735S_LCD/assets/30304173/c0736b39-0bb9-4a1f-b404-5bf1be6a9e27" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+</div>
 
 # rpi_ST7735S_LCD
 ![pinout](docs/product.jpg)
