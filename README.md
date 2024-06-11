@@ -1,9 +1,11 @@
 ## RPICAM STREAM DEMO
-https://github.com/ChrisStewart132/rpi_ST7735S_LCD/assets/30304173/15f0ddb7-d65c-49f5-a9d2-8b89218a76ce
+![ST7735S_LCD_rpi_setup_demo](assets/gifs/ST7735S_LCD_rpi_setup_demo.gif) ![ST7735S_LCD_rpi_demo_2bit_gray](assets/gifs/ST7735S_LCD_rpi_demo_2bit_gray.gif) ![ST7735S_LCD_rpi_demo](assets/gifs/ST7735S_LCD_rpi_demo.gif)
 
-https://github.com/ChrisStewart132/rpi_ST7735S_LCD/assets/30304173/c9ff8db5-4f8d-4dca-9069-a038091af83d
+![setup](https://github.com/ChrisStewart132/ChrisStewart132/blob/main/assets/gifs/ST7735S_LCD_rpi_setup_demo.gif?raw=true)
 
-https://github.com/ChrisStewart132/rpi_ST7735S_LCD/assets/30304173/c0736b39-0bb9-4a1f-b404-5bf1be6a9e27
+![2bit_gray](https://github.com/ChrisStewart132/ChrisStewart132/blob/main/assets/gifs/ST7735S_LCD_rpi_demo_2bit_gray.gif?raw=true)
+
+![16bit_rgb](https://github.com/ChrisStewart132/ChrisStewart132/blob/main/assets/gifs/ST7735S_LCD_rpi_demo.gif?raw=true)
 
 ![product](docs/product.jpg)
 
