@@ -12,10 +12,10 @@
  * rpicam-vid -t 0 -n --framerate 30 --width 128 --height 160 --codec yuv420 -o - | ./YUV420_to_RGB565 | ./ST7735S_LCD_stdin_stream
  * 
  * 4bit grayscale
- * rpicam-vid -t 20000 -n --framerate 24 --width 128 --height 160 --codec yuv420 -o - | ./YUV420_to_4bit_grayscale | ./grayscale_4bit_to_16bit_RGB565 | ./ST7735S_LCD_stdin_stream
+ * rpicam-vid -t 0 -n --framerate 24 --width 128 --height 160 --codec yuv420 -o - | ./YUV420_to_4bit_grayscale | ./grayscale_4bit_to_16bit_RGB565 | ./ST7735S_LCD_stdin_stream
  * 
  * 2bit grayscale
- * rpicam-vid -t 20000 -n --framerate 24 --width 128 --height 160 --codec yuv420 -o - | ./YUV420_to_2bit_grayscale | ./grayscale_2bit_to_16bit_RGB565 | ./ST7735S_LCD_stdin_stream
+ * rpicam-vid -t 0 -n --framerate 24 --width 128 --height 160 --codec yuv420 -o - | ./YUV420_to_2bit_grayscale | ./grayscale_2bit_to_16bit_RGB565 | ./ST7735S_LCD_stdin_stream
  * 
  */
 
