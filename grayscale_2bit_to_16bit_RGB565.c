@@ -23,16 +23,17 @@ int main(int argc, char** argv) {
         for(int i = 0; i < HEIGHT; i++){
             for(int j = 0; j < WIDTH; j++){
                 uint8_t gray;
+                uint8_t gray_2bit = grayscale_2bit[i][j/4];
                 if(j % 4 == 0){
-                    gray = (grayscale_2bit[i][j/4] & (0x3<<6));
+                    gray = (gray_2bit>>6) & 0x03;
                 }else if(j % 4 == 1){
-                    gray = (grayscale_2bit[i][j/4] & (0x3<<4));
+                    gray = (gray_2bit>>4) & 0x03;
                 }else if(j % 4 == 2){
-                    gray = (grayscale_2bit[i][j/4] & (0x3<<2));
+                    gray = (gray_2bit>>2) & 0x03;
                 }else if(j % 4 == 3){
-                    gray = (grayscale_2bit[i][j/4] & (0x3<<0));
+                    gray = (gray_2bit>>0) & 0x03;
                 }  
-                gray*=64;
+                gray*=85;
                 uint8_t r = gray/8;//0-31
                 uint8_t g = gray/4;//0-63
                 uint8_t b = gray/8;//0-31

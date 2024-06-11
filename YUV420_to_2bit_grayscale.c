@@ -1,7 +1,7 @@
 /**
  * Author: Christopher Stewart (Christopher.ray.stewart@gmail.com)
  * Date: 10062024
- * Description: program to convert an incoming stream of 128x160 yuv420 images to 64x160 2bit grayscale
+ * Description: program to convert an incoming stream of 128x160 yuv420 images to 32x160 2bit grayscale
  * 
  * gcc -o YUV420_to_2bit_grayscale YUV420_to_2bit_grayscale.c
  */
@@ -34,10 +34,10 @@ int main(int argc, char** argv) {
         for(int i = 0; i < HEIGHT/2; i++){
             read(0, v[i], sizeof(uint8_t)*WIDTH/2);
         }
-        // convert YUV420 (12bit per pixel) to 4bit grayscale (4bit per pixel)
+        // convert YUV420 (12bit per pixel) to 2bit grayscale (2bit per pixel)
         for (int i = 0; i < HEIGHT; i++) {
             for (int j = 0; j < WIDTH; j ++) {
-                uint8_t gray = y[i][j]/64;// convert from 8bit (0-255) to 4bit gray (0-15)
+                uint8_t gray = y[i][j]/64;// convert from 8bit (0-255) to 2bit gray (0-3)
                 if(j % 4 == 0){
                     grayscale_2bit[i][j/4] =  (gray << 6);
                 }else if(j % 4 == 1){
