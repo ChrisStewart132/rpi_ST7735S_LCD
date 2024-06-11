@@ -12,7 +12,7 @@ http://www.lcdwiki.com/1.8inch_Arduino_SPI_Module_ST7735S_SKU:MAR1801
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
-- [License](#license)
+- [Pinout](#pinout)
 
 ## Introduction
 
@@ -51,7 +51,16 @@ gcc -o YUV420_to_RGB565 YUV420_to_RGB565.c -lgpiod
 
 gcc -o ST7735S_LCD_stdin_stream ST7735S_LCD_stdin_stream.c -lgpiod
 ```
-ST77355s_LCD_stdin_stream
+Enable rpi SPI1 (spi1-2cs) in the config.txt
+```
+cd /boot/firmware
+sudo nano config.txt
+// dtoverlay=spi1-2cs
+cntrl x, save, yes
+sudo reboot
+```
+## Usage
+ST77355s_LCD_stdin_stream.c contains example usage
 ```
 /**
  * Author: Christopher Stewart (Christopher.ray.stewart@gmail.com)
@@ -74,6 +83,10 @@ ST77355s_LCD_stdin_stream
  * 
  */
 ```
+With everything compiled, a rpi, camera, and ST7735S LCD wired to SPI1 run the above commands in the same directory e.g.
+```
+rpicam-vid -t 0 -n --framerate 30 --width 128 --height 160 --codec yuv420 -o - | ./YUV420_to_RGB565 | ./ST7735S_LCD_stdin_stream
+```
 
-## pinout
+## Pinout
 ![pinout](docs/pinout.jpg)
