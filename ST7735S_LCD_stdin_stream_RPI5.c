@@ -1,21 +1,21 @@
 /**
  * Author: Christopher Stewart (Christopher.ray.stewart@gmail.com)
- * Date: 11062024
+ * Date: 18092024
  * Description: program to display a 128x160 16bit rgb (565) stream from stdin on a ST7735S 1.8" 128x160 LCD
  * 
- * gcc -o ST7735S_LCD_stdin_stream ST7735S_LCD_stdin_stream.c -lgpiod
+ * gcc -o ST7735S_LCD_stdin_stream_RPI5 ST7735S_LCD_stdin_stream_RPI5.c -lgpiod
  * 
  * grayscale
- * rpicam-vid -t 0 -n --framerate 30 --width 128 --height 160 --codec yuv420 -o - | ./YUV420_to_RGB565_grayscale | ./ST7735S_LCD_stdin_stream
+ * rpicam-vid -t 0 -n --framerate 30 --width 128 --height 160 --codec yuv420 -o - | ./YUV420_to_RGB565_grayscale | ./ST7735S_LCD_stdin_stream_RPI5
  * 
  * rgb565
- * rpicam-vid -t 0 -n --framerate 30 --width 128 --height 160 --codec yuv420 -o - | ./YUV420_to_RGB565 | ./ST7735S_LCD_stdin_stream
+ * rpicam-vid -t 0 -n --framerate 30 --width 128 --height 160 --codec yuv420 -o - | ./YUV420_to_RGB565 | ./ST7735S_LCD_stdin_stream_RPI5
  * 
  * 4bit grayscale
- * rpicam-vid -t 0 -n --framerate 30 --width 128 --height 160 --codec yuv420 -o - | ./YUV420_to_4bit_grayscale | ./grayscale_4bit_to_16bit_RGB565 | ./ST7735S_LCD_stdin_stream
+ * rpicam-vid -t 0 -n --framerate 30 --width 128 --height 160 --codec yuv420 -o - | ./YUV420_to_4bit_grayscale | ./grayscale_4bit_to_16bit_RGB565 | ./ST7735S_LCD_stdin_stream_RPI5
  * 
  * 2bit grayscale
- * rpicam-vid -t 0 -n --framerate 30 --width 128 --height 160 --codec yuv420 -o - | ./YUV420_to_2bit_grayscale | ./grayscale_2bit_to_16bit_RGB565 | ./ST7735S_LCD_stdin_stream
+ * rpicam-vid -t 0 -n --framerate 30 --width 128 --height 160 --codec yuv420 -o - | ./YUV420_to_2bit_grayscale | ./grayscale_2bit_to_16bit_RGB565 | ./ST7735S_LCD_stdin_stream_RPI5
  * 
  */
 
@@ -32,7 +32,7 @@
 #define WIDTH 128
 #define HEIGHT 160
 
-#define GPIO_CHIP_NAME "gpiochip0"
+#define GPIO_CHIP_NAME "gpiochip4" // rpi5 changed from gpiochip0 to 4...
 #define GPIO_OFFSET_DC 26 	// DATA(high)/COMMAND(low) aka WRX
 #define GPIO_OFFSET_RST 16 	// RESET active low
 
