@@ -29,6 +29,9 @@
 #include <sys/ioctl.h>
 #include <linux/spi/spidev.h>
 
+#include <signal.h>
+
+
 #define WIDTH 128
 #define HEIGHT 160
 
@@ -56,6 +59,7 @@
 #define SWRESET 0x01	// loads default settings
 #define SLPOUT 0x11		// Sleep Out & Booster On
 #define NORON 0x13		// normal display mode on
+#define DISPOFF 0x28	// turn disp off
 #define DISPON 0x29		// default display is off...
 
 #define GAMSET 0x26		
@@ -74,6 +78,7 @@
 #define SCRLAR 0x33
 #define MADCTL 0x36 // lcd orientation settings
 #define VSCSAD 0x37 
+
 
          
 void _spi_transfer(int fd, uint8_t* tx_buffer, uint8_t* rx_buffer, int size) {
@@ -265,20 +270,31 @@ void display_buffer(int fd, struct gpiod_line* dc, uint16_t buffer[160][128]){
     }
 }
 
+
+struct gpiod_chip* chip;
+struct gpiod_line* dc;
+struct gpiod_line* rst;
+int fd;// SPI file
+void signal_handler(int sig) {
+    printf("\n ST7735S_LCD_stdin_stream_RPI5: Received signal %d\n", sig);
+	// Hardware reset
+	_gpio_low(rst);
+	usleep(100000); // 100ms delay
+	_gpio_high(rst);
+	usleep(100000); // 100ms delay
+
+	// Display on
+	command(fd, dc, DISPOFF);
+    exit(0);
+}
 int main() {
-	struct gpiod_chip* chip;
-	struct gpiod_line* dc;
-	struct gpiod_line* rst;
-
 	init_gpio(&chip, &dc, &rst);
-	
-	int fd;// SPI file
 	init_spi(&fd);
-
 	init(fd, dc, rst);
 	//display_invert(fd, dc);
 	sleep(1);
 	uint16_t buffer[160][128] = {{0}};
+	signal(SIGINT, signal_handler); // Handle Ctrl+C
 	while(1){
 		for(int i = 0; i < 160; i++){
 			read(0, buffer[i], sizeof(uint16_t)*128);
